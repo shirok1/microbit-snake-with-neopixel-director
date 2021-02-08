@@ -24,17 +24,6 @@ function will_hit_body (x: number, y: number) {
     }
     return will_hit
 }
-function pace () {
-    if (direct == 0) {
-        return safe_add_x(true)
-    } else if (direct == 1) {
-        return safe_add_y(true)
-    } else if (direct == 2) {
-        return safe_add_x(false)
-    } else {
-        return safe_add_y(false)
-    }
-}
 function loop_add_y (down: boolean) {
     if (down) {
         y += 1
@@ -55,16 +44,6 @@ function pace_loop () {
         return loop_add_y(false)
     }
 }
-function safe_add_x (right: boolean) {
-    if (right && x < 4) {
-        x += 1
-        return true
-    } else if (!(right) && x > 0) {
-        x += -1
-        return true
-    }
-    return false
-}
 input.onButtonPressed(Button.AB, function () {
     basic.clearScreen()
     framerate = framerate / 1.1
@@ -83,16 +62,6 @@ function init () {
     led.plotBrightness(x, y, 25)
     generate_food()
     died = false
-}
-function safe_add_y (down: boolean) {
-    if (down && y < 4) {
-        y += 1
-        return true
-    } else if (!(down) && y > 0) {
-        y += -1
-        return true
-    }
-    return false
 }
 input.onButtonPressed(Button.B, function () {
     direct += 1
@@ -142,29 +111,24 @@ basic.forever(function () {
             basic.pause(100)
         }
     }
-    if (pace_loop()) {
-        if (will_hit_body(x, y)) {
-            died = true
-        } else {
-            if (x == food_x && y == food_y) {
-                score += 1
-                generate_food()
-            } else {
-                last_x = list_x.pop()
-                last_y = list_y.pop()
-                if (x == last_x && y != last_y) {
-                    died = false
-                }
-                led.unplot(last_x, last_y)
-            }
-            list_x.unshift(x)
-            list_y.unshift(y)
-            led.plotBrightness(x, y, 255)
-            basic.pause(framerate)
-            led.plotBrightness(x, y, 25)
-        }
+    pace_loop()
+    if (will_hit_body(x, y)) {
+        died = true
     } else {
-        led.plotBrightness(x, y, 0)
+        if (x == food_x && y == food_y) {
+            score += 1
+            generate_food()
+        } else {
+            last_x = list_x.pop()
+            last_y = list_y.pop()
+            if (x == last_x && y != last_y) {
+                died = false
+            }
+            led.unplot(last_x, last_y)
+        }
+        list_x.unshift(x)
+        list_y.unshift(y)
+        led.plotBrightness(x, y, 255)
         basic.pause(framerate)
         led.plotBrightness(x, y, 25)
     }
